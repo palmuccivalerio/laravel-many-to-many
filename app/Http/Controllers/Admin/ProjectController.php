@@ -56,6 +56,7 @@ class ProjectController extends Controller
      */
     public function show(Project $project)
     {
+        $project->load('technologies'); // Carica le tecnologie associate
         return view('admin.projects.show', compact('project'));
     }
 
