@@ -7,16 +7,17 @@
     <p>Slug: {{$project->slug}}</p>
     @if($project->type)
         <p>Tipologia: {{ $project->type->name }}</p>
-        @if($project->technologies->count())
+        
+      
+    
+
+    @endif
+
+  
+    <ul>
         <h3>Tecnologie Utilizzate:</h3>
-        <ul>
             @foreach($project->technologies as $technology)
                 <li>{{ $technology->name }}</li>
             @endforeach
         </ul>
-    @endif
-
-    @endif
-
-
 @endsection
