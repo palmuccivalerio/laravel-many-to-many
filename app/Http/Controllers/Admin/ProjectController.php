@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Models\Project;
 use App\Models\Type;
+use App\Models\Technology;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -25,9 +26,9 @@ class ProjectController extends Controller
      */
     public function create()
     {
+        $technologies = Technology::all();
         $types = Type::all();
-    return view('admin.projects.create', compact('types'));
-    
+        return view('admin.projects.create', compact('types'), compact('technologies'));
     }
 
     public function store(Request $request)
@@ -37,6 +38,8 @@ class ProjectController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'type_id' => 'required|exists:types,id',
+            'technologies' => 'array',
+            'technologies.*' => 'exists:technologies,id'
         ]);
 
         // Genera lo slug automaticamente
@@ -44,9 +47,9 @@ class ProjectController extends Controller
 
         // Crea il nuovo progetto
         $project = Project::create($data);
+        $project->technologies()->sync($request->technologies);
 
         return redirect()->route('admin.projects.show', ['project' => $project->slug])->with('success', 'Progetto creato con successo');
-      
     }
 
 
@@ -65,8 +68,9 @@ class ProjectController extends Controller
      */
     public function edit(Project $project)
     {
+        $technologies = Technology::all();
         $types = Type::all();
-        return view('admin.projects.edit', compact('project', 'types'));
+        return view('admin.projects.edit', compact('project', 'types','technologies'));
     }
 
     /**
@@ -78,6 +82,8 @@ class ProjectController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'type_id' => 'required|exists:types,id',
+            'technologies' => 'array|nullable',
+            'technologies.*' => 'exists:technologies,id'
         ]);
 
         // Genera un nuovo slug se il titolo è cambiato
@@ -87,6 +93,7 @@ class ProjectController extends Controller
 
         // Aggiorna il progetto con i nuovi dati
         $project->update($data);
+        $project->technologies()->sync($request->technologies);
 
         return redirect()->route('admin.projects.index', ['project' => $project->slug])->with('success', 'Progetto aggiornato con successo');
     }
